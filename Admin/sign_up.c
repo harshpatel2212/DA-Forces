@@ -6,7 +6,18 @@
 #include <conio.h>
 #include <windows.h>
 #include <process.h>
-#include <direct.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <errno.h>
+#include <signal.h>
+
+// PWD shell scripting to do.
+#define PROJECTPATH scanf("%s\n", system("cat >1 pwd"));
+#define ADMINPATH strcat(PROJECTPATH, "\\Admin");
+#define USERSPATH strcat(PROJECTPATH, "\\Users");
 
 #define MAXUSERSIZE 100
 
@@ -15,6 +26,7 @@ typedef struct usersDataBase
     int id;
     char name[50];
     char password[50];
+    DIR *dir_ptr;
 } user;
 
 int main()
@@ -62,12 +74,12 @@ launch:
                     fscanf(ptr, "%s", temp);
                     if (strcmp(temp, password) == 0)
                     {
-                        printf("\n\nSucessfully Login");
+                        printf("\nSucessfully Login");
                         break;
                     }
                     else
                     {
-                        printf("\n\nWrong Password");
+                        printf("\nWrong Password");
                     }
                 }
             }
@@ -80,7 +92,7 @@ launch:
             printf("Username : ");
             scanf("%s", us_id);
             ptr = fopen("users_data.txt", "r");
-            for (int i = 0; i != EOF; i++)
+            for (int i = 0; i < MAXUSERSIZE; i++)
             {
                 char temp[50];
                 fscanf(ptr, "%s", temp);
@@ -92,27 +104,28 @@ launch:
                 }
             }
             fclose(ptr);
+        confirmPassword:
             printf("Password : ");
             scanf("%s", password);
-        confirmPassword:
             printf("Confirm Password : ");
             scanf("%s", confmPass);
-            if (confmPass == password)
+            if (strcmp(password, confmPass) == 0)
             {
                 ptr = fopen("users_data.txt", "a");
                 fprintf(ptr, "%s %s\n", us_id, password);
                 fclose(ptr);
-                printf("\n\nSucessfully Signup");
+                printf("\n\nSucessfully Signup\n");
                 users[number_of_users].id = number_of_users;
                 strncpy(users[number_of_users].name, us_id, 50);
                 users[number_of_users].name[49] = '\0';
                 strncpy(users[number_of_users].password, password, 50);
                 users[number_of_users].password[49] = '\0';
                 number_of_users++;
+                system("cls");
             }
             else
             {
-                printf("\n\nPassword and Confirm Password doesn't match");
+                printf("\n\nPassword and Confirm Password doesn't match\n\n");
                 goto confirmPassword;
             }
             goto launch;
