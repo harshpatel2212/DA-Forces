@@ -20,7 +20,7 @@ gcc $uPath/$qID/submission.c -o $uPath/$qID/submission.out
 
 if [ $? == 0 ]
 then
-    cmp --silent $oPath $vPath && echo 'All Correct' || echo 'Wrong Answer' > $vPath
+    cmp --silent $oPath $vPath && echo 'All Correct' > $vPath || echo 'Wrong Answer' > $vPath
     exit 0
 else
     cat $vPath
