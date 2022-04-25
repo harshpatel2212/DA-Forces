@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -61,7 +62,6 @@ launch:
 
         int choice_2;
         scanf("%d", &choice_2);
-        printf("%d", choice_2);
 
         system("clear");
 
@@ -75,8 +75,6 @@ launch:
             char *path = (char *)malloc(sizeof(char) * 100);
             strcpy(path, ADMINPATH);
             strcat(path, "/users_data.txt");
-            printf("%s\n", ADMINPATH);
-            printf("%s\n", path);
             FILE *ptr = fopen(path, "r");
             if (ptr == NULL)
             {
@@ -90,12 +88,8 @@ launch:
             while (fscanf(ptr, "%s", uname) != EOF)
             {
                 fscanf(ptr, "%u", &pass);
-                printf("%s\n", uname);
-                printf("%u\n", pass);
-                printf("%u\n", hashFunc(password, strlen(password)));
                 if (strcmp(uname, us_id) == 0)
                 {
-                    printf("in\n");
                     if (pass == hashFunc(password, strlen(password)))
                     {
                         printf("\nSucessfully Login\n");
@@ -111,16 +105,6 @@ launch:
                     }
                 }
             }
-
-            // Working Fine. So Problem is in fscanf() or reading a string.
-            // char buffer;
-            // while ((buffer = fgetc(ptr)) != EOF)
-            // {
-            //     printf("%c", buffer);
-            // }
-            // printf("\n");
-            // userLogin(us_id, 223152475, ptr, 1);
-            // fclose(ptr);
         }
         else
         {
@@ -128,13 +112,10 @@ launch:
         username:
             printf("Username : ");
             scanf("%s", us_id);
-            printf("%s\n", us_id);
 
             char *path = (char *)malloc(sizeof(char) * 100);
             strcpy(path, ADMINPATH);
             strcat(path, "/users_data.txt");
-            printf("%s\n", ADMINPATH);
-            printf("%s\n", path);
             FILE *ptr = fopen(path, "r");
             if (ptr == NULL)
             {
@@ -148,8 +129,6 @@ launch:
             while (flag != EOF)
             {
                 fscanf(ptr, "%s", uname);
-                printf("%s\n", us_id);
-                printf("%s\n", uname);
                 if (strcmp(uname, us_id) == 0)
                 {
                     printf("Username already exists\n\n");
@@ -159,8 +138,6 @@ launch:
                     goto username;
                 }
                 flag = fscanf(ptr, "%u", &pass);
-                printf("%u\n", pass);
-                printf("%u\n", hashFunc(password, strlen(password)));
             }
         confirmPassword:
             printf("Password : ");
@@ -180,6 +157,7 @@ launch:
                 // users[number_of_users].password[49] = '\0';
                 number_of_users++;
                 system("clear");
+                userLogin(us_id, pass, ptr, 1);
             }
             else
             {
@@ -219,14 +197,14 @@ launch:
 void userLogin(char *username, uint32_t password, FILE *fp, int flag)
 {
     char *folderPath = (char *)malloc(sizeof(char) * 100);
-    strcpy(folderPath, USERSPATH);
-    strcat(folderPath, "/");
+    strcpy(folderPath, ADMINPATH);
+    strcat(folderPath, "/users/");
     strcat(folderPath, username);
     if (flag)
     {
         printf("%s\n", folderPath);
         mode_t mode = 0777;
-        // mkdir(folderPath, mode);
+        mkdir(folderPath, mode);
     }
     free(folderPath);
     printf("Select the appropriate choice from following\n\n"
@@ -300,7 +278,24 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                     }
                 }
                 closedir(dir);
-                printf("%s\n", question);
+                char *cmd;
+                cmd = (char *)malloc(sizeof(char) * 100);
+                strcpy(cmd, "ls Admin/users/");
+                strcat(cmd, username);
+                strcat(cmd, "/");
+                strcat(cmd, ques->d_name);
+                if (system(cmd) != 0)
+                {
+                    char *cmd2;
+                    cmd2 = (char *)malloc(sizeof(char) * 100);
+                    strcpy(cmd2, "mkdir Admin/users/");
+                    strcat(cmd2, username);
+                    strcat(cmd2, "/");
+                    strcat(cmd2, ques->d_name);
+                    system(cmd2);
+                    free(cmd2);
+                }
+                free(cmd);
                 FILE *ptr = fopen(question, "r");
                 if (ptr == NULL)
                 {
@@ -317,16 +312,64 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
 
                 printf("Select the appropriate choice from following\n\n"
 
-                       "1) Enter 0 for Submit Question\n"
+                       "1) Enter 0 to Code\n"
                        "2) Enter 1 to go back\n\n");
 
                 int choice;
                 scanf("%d", &choice);
                 if (choice == 0)
                 {
-                    // Open Gedit. Save file and then call the tester.
-                    // fork exec wait signal handling all here.
-                    printf("Success...");
+                    system("touch Users/submission.c; chmod 755 Users/submission.c; gedit Users/submission.c");
+                    printf("Select the appropriate choice from following\n\n"
+
+                           "1) Enter 0 for Submit Code\n"
+                           "2) Enter 1 to Cancel\n\n");
+                    int choice;
+                    scanf("%d", &choice);
+                    if (choice == 0)
+                    {
+                        char *cmd;
+                        cmd = (char *)malloc(sizeof(char) * 100);
+                        printf("%s\n", cmd);
+                        strcpy(cmd, "mv Users/submission.c Admin/users/");
+                        strcat(cmd, username);
+                        strcat(cmd, "/");
+                        strcat(cmd, ques->d_name);
+                        printf("%s\n", cmd);
+                        system(cmd);
+                        free(cmd);
+
+                        // System Testing.
+                        cmd = (char *)malloc(sizeof(char) * 100);
+                        printf("%s\n", cmd);
+                        strcpy(cmd, "Admin/runQuestion.sh ");
+                        strcat(cmd, ques->d_name);
+                        strcat(cmd, " ");
+                        strcat(cmd, username);
+                        system(cmd);
+                        printf("%s\n", cmd);
+                        free(cmd);
+
+                        // Display Verdict.txt
+                        FILE *ptr = fopen("verdict.txt", "r");
+                        if (ptr == NULL)
+                        {
+                            printf("Error in opening file\n");
+                            exit(1);
+                        }
+                        char buffer;
+                        while ((buffer = fgetc(ptr)) != EOF)
+                        {
+                            printf("%c", buffer);
+                        }
+                        printf("\n");
+                        fclose(ptr);
+                        system("rm verdict.txt");
+                    }
+                    else
+                    {
+                        system("rm Users/submission.*");
+                    }
                 }
                 else
                 {
