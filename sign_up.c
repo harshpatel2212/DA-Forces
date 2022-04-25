@@ -61,6 +61,7 @@ launch:
 
         int choice_2;
         scanf("%d", &choice_2);
+        printf("%d", choice_2);
 
         system("clear");
 
@@ -82,35 +83,44 @@ launch:
                 printf("Error in opening file\n");
                 exit(1);
             }
-            // char *uname, *pass;
-            // while (fscanf(ptr, "%s %s", uname, pass) != EOF)
-            // {
-            //     printf("%s\n", uname);
-            //     printf("%s\n", pass);
-            //     if (strcmp(uname, us_id) == 0)
-            //     {
-            //         if (pass == hashFunc(password, strlen(password)))
-            //         {
-            //             printf("\nSucessfully Login\n");
-            //             userLogin(us_id, password, ptr, 0);
-            //             break;
-            //         }
-            //         else
-            //         {
-            //             printf("\nWrong Password\n");
-            //         }
-            //     }
-            // }
+            char *uname;
+            uname = (char *)malloc(sizeof(char) * 50);
+            uint32_t pass;
+            // Working Fine. So Problem is in fscanf() or reading a string.
+            while (fscanf(ptr, "%s", uname) != EOF)
+            {
+                fscanf(ptr, "%u", &pass);
+                printf("%s\n", uname);
+                printf("%u\n", pass);
+                printf("%u\n", hashFunc(password, strlen(password)));
+                if (strcmp(uname, us_id) == 0)
+                {
+                    printf("in\n");
+                    if (pass == hashFunc(password, strlen(password)))
+                    {
+                        printf("\nSucessfully Login\n");
+                        fclose(ptr);
+                        free(path);
+                        userLogin(us_id, pass, ptr, 0);
+                        break;
+                    }
+                    else
+                    {
+                        printf("\nWrong Password\n");
+                        free(path);
+                    }
+                }
+            }
 
             // Working Fine. So Problem is in fscanf() or reading a string.
-            char buffer;
-            while ((buffer = fgetc(ptr)) != EOF)
-            {
-                printf("%c", buffer);
-            }
-            printf("\n");
-            userLogin(us_id, 223152475, ptr, 1);
-            fclose(ptr);
+            // char buffer;
+            // while ((buffer = fgetc(ptr)) != EOF)
+            // {
+            //     printf("%c", buffer);
+            // }
+            // printf("\n");
+            // userLogin(us_id, 223152475, ptr, 1);
+            // fclose(ptr);
         }
         else
         {
@@ -118,6 +128,7 @@ launch:
         username:
             printf("Username : ");
             scanf("%s", us_id);
+            printf("%s\n", us_id);
 
             char *path = (char *)malloc(sizeof(char) * 100);
             strcpy(path, ADMINPATH);
@@ -130,17 +141,27 @@ launch:
                 printf("Error in opening file\n");
                 exit(1);
             }
-            char *uname, *pass;
-            while (fscanf(ptr, "%s %s", uname, pass) != EOF)
+            char *uname;
+            uname = (char *)malloc(sizeof(char) * 50);
+            uint32_t pass;
+            int flag = 0;
+            while (flag != EOF)
             {
+                fscanf(ptr, "%s", uname);
+                printf("%s\n", us_id);
+                printf("%s\n", uname);
                 if (strcmp(uname, us_id) == 0)
                 {
-                    printf("\nUsername already exists\n");
-                    printf("Choose a unique Username\n\n");
+                    printf("Username already exists\n\n");
+                    fclose(ptr);
+                    free(uname);
+                    free(path);
                     goto username;
                 }
+                flag = fscanf(ptr, "%u", &pass);
+                printf("%u\n", pass);
+                printf("%u\n", hashFunc(password, strlen(password)));
             }
-            fclose(ptr);
         confirmPassword:
             printf("Password : ");
             scanf("%s", password);
@@ -149,7 +170,7 @@ launch:
             if (strcmp(password, confmPass) == 0)
             {
                 FILE *ptr = fopen(path, "a");
-                fprintf(ptr, "%s %s\n", us_id, password);
+                fprintf(ptr, "%s %u\n", us_id, hashFunc(password, strlen(password)));
                 fclose(ptr);
                 printf("\n\nSucessfully Signup\n");
                 users[number_of_users].id = number_of_users;
@@ -207,6 +228,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
         mode_t mode = 0777;
         // mkdir(folderPath, mode);
     }
+    free(folderPath);
     printf("Select the appropriate choice from following\n\n"
 
            "1) Enter 0 for Solve Question\n"
@@ -251,6 +273,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
             if (choice == -1)
             {
                 printf("\n\nExiting...\n\n");
+                free(questionsPath);
                 sleep(1);
                 exit(0);
             }
@@ -306,7 +329,10 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                     printf("Success...");
                 }
                 else
+                {
+                    free(question);
                     goto display;
+                }
             }
         }
     }
