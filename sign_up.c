@@ -10,18 +10,21 @@
 #include <dirent.h>
 #include <errno.h>
 #include <signal.h>
-
-// PWD shell scripting to do.
-char *PROJECTPATH, *ADMINPATH, *USERSPATH;
+#include <stdint.h>
 
 #define MAXUSERSIZE 100
-void userLogin(char *username, char *password, FILE *fp, int flag);
+
+char *PROJECTPATH, *ADMINPATH, *USERSPATH;
+
+// void userLogin(char *username, char *password, FILE *fp, int flag);
+void userLogin(char *username, uint32_t password, FILE *fp, int flag);
+uint32_t hashFunc(char *key, size_t len);
 
 typedef struct usersDataBase
 {
     int id;
     char name[50];
-    char password[50];
+    uint32_t password;
     DIR *dir_ptr;
 } user;
 
@@ -86,7 +89,7 @@ launch:
             //     printf("%s\n", pass);
             //     if (strcmp(uname, us_id) == 0)
             //     {
-            //         if (strcmp(pass, password) == 0)
+            //         if (pass == hashFunc(password, strlen(password)))
             //         {
             //             printf("\nSucessfully Login\n");
             //             userLogin(us_id, password, ptr, 0);
@@ -106,7 +109,7 @@ launch:
                 printf("%c", buffer);
             }
             printf("\n");
-            userLogin(us_id, "1", ptr, 1);
+            userLogin(us_id, 223152475, ptr, 1);
             fclose(ptr);
         }
         else
@@ -152,8 +155,8 @@ launch:
                 users[number_of_users].id = number_of_users;
                 strncpy(users[number_of_users].name, us_id, 50);
                 users[number_of_users].name[49] = '\0';
-                strncpy(users[number_of_users].password, password, 50);
-                users[number_of_users].password[49] = '\0';
+                users[number_of_users].password = hashFunc(password, strlen(password));
+                // users[number_of_users].password[49] = '\0';
                 number_of_users++;
                 system("clear");
             }
@@ -191,7 +194,8 @@ launch:
     return 0;
 }
 
-void userLogin(char *username, char *password, FILE *fp, int flag)
+// void userLogin(char *username, char *password, FILE *fp, int flag)
+void userLogin(char *username, uint32_t password, FILE *fp, int flag)
 {
     char *folderPath = (char *)malloc(sizeof(char) * 100);
     strcpy(folderPath, USERSPATH);
@@ -203,4 +207,124 @@ void userLogin(char *username, char *password, FILE *fp, int flag)
         mode_t mode = 0777;
         // mkdir(folderPath, mode);
     }
+    printf("Select the appropriate choice from following\n\n"
+
+           "1) Enter 0 for Solve Question\n"
+           "2) Enter 1 for Exit\n\n");
+
+    int choice;
+    scanf("%d", &choice);
+    system("clear");
+    if (choice == 0)
+    {
+        char *questionsPath = (char *)malloc(sizeof(char) * 100);
+        strcpy(questionsPath, ADMINPATH);
+        strcat(questionsPath, "/Questions");
+        DIR *dir;
+        dir = opendir(questionsPath);
+        if (dir == NULL)
+        {
+            fprintf(fp, "Error: Directory not found\n");
+            printf("Error: Directory not found\n");
+            return;
+        }
+        else
+        {
+        display:;
+            struct dirent *entry;
+            int index = 1;
+            while ((entry = readdir(dir)) != NULL)
+            {
+                if (entry->d_name[0] != '.')
+                {
+                    printf("%d :- %s\n", index, entry->d_name);
+                    index++;
+                }
+            }
+            closedir(dir);
+            printf("Select the appropriate choice from following\n\n"
+
+                   "1) Enter Question Number\n"
+                   "2) Enter -1 for Exit\n\n");
+            int choice;
+            scanf("%d", &choice);
+            if (choice == -1)
+            {
+                printf("\n\nExiting...\n\n");
+                sleep(1);
+                exit(0);
+            }
+            else
+            {
+                // Read Question.
+                char *question = (char *)malloc(sizeof(char) * 100);
+                strcpy(question, questionsPath);
+
+                dir = opendir(questionsPath);
+                struct dirent *ques;
+                while ((ques = readdir(dir)) != NULL)
+                {
+                    if (ques->d_name[0] - '0' != choice)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        strcat(question, "/");
+                        strcat(question, ques->d_name);
+                        strcat(question, "/description.txt");
+                        break;
+                    }
+                }
+                closedir(dir);
+                printf("%s\n", question);
+                FILE *ptr = fopen(question, "r");
+                if (ptr == NULL)
+                {
+                    printf("Error in opening file\n");
+                    exit(1);
+                }
+                char buffer;
+                while ((buffer = fgetc(ptr)) != EOF)
+                {
+                    printf("%c", buffer);
+                }
+                printf("\n");
+                fclose(ptr);
+
+                printf("Select the appropriate choice from following\n\n"
+
+                       "1) Enter 0 for Submit Question\n"
+                       "2) Enter 1 to go back\n\n");
+
+                int choice;
+                scanf("%d", &choice);
+                if (choice == 0)
+                {
+                    // Open Gedit. Save file and then call the tester.
+                    // fork exec wait signal handling all here.
+                    printf("Success...");
+                }
+                else
+                    goto display;
+            }
+        }
+    }
+    else
+    {
+        printf("\n\nExiting...\n\n");
+        sleep(1);
+        exit(0);
+    }
+}
+
+uint32_t hashFunc(char *key, size_t len)
+{
+    uint32_t hash = 5381;
+    int c;
+
+    while (c = *key++)
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+    return hash;
 }
