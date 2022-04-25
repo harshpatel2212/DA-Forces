@@ -6,7 +6,7 @@ uID=$2
 uPath="Admin/users/$uID"
 iPath="$qPath/in.txt"
 oPath="$qPath/out.txt"
-vPath="$qPath/verdict.txt"
+vPath="verdict.txt"
 
 
 
@@ -20,12 +20,11 @@ gcc $uPath/$qID/submission.c -o $uPath/$qID/submission.out
 
 if [ $? == 0 ]
 then
-    cmp --silent $oPath $vPath && echo 'All Correct' || echo 'Wrong Answer'
+    cmp --silent $oPath $vPath && echo 'All Correct' > $vPath || echo 'Wrong Answer' > $vPath
     exit 0
 else
     cat $vPath
     exit 1
 fi
 
-rm $vPath
 rm $uPath/$qID/submission.out
