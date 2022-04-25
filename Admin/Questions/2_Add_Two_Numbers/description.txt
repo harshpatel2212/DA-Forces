@@ -1,0 +1,19 @@
+Add Two Numbers
+
+Given two numbers, Add both the numbers and Print the sum of it
+
+Input:
+The first line contains two space-separated numbers  N and M.
+
+Output:
+In this line, Print the sum of two nummbers N and M
+
+Sample Test Case:
+Input:
+5 3
+
+Output:
+8
+
+Explanation:
+5 + 3 = 8
