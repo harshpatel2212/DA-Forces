@@ -12,11 +12,10 @@
 #include <signal.h>
 
 // PWD shell scripting to do.
-#define PROJECTPATH getenv("PWD")
-#define ADMINPATH strcat(PROJECTPATH, "/Admin")
-#define USERSPATH strcat(PROJECTPATH, "/Users")
+char *PROJECTPATH, *ADMINPATH, *USERSPATH;
 
 #define MAXUSERSIZE 100
+void userLogin(char *username, char *password, FILE *fp, int flag);
 
 typedef struct usersDataBase
 {
@@ -28,12 +27,17 @@ typedef struct usersDataBase
 
 int main()
 {
-    char *projPath = (char *)malloc(sizeof(char) * 100);
-    projPath = PROJECTPATH;
+    PROJECTPATH = (char *)malloc(sizeof(char) * 100);
+    ADMINPATH = (char *)malloc(sizeof(char) * 100);
+    USERSPATH = (char *)malloc(sizeof(char) * 100);
+    PROJECTPATH = getenv("PWD");
+    strcpy(ADMINPATH, PROJECTPATH);
+    strcat(ADMINPATH, "/Admin");
+    strcpy(USERSPATH, PROJECTPATH);
+    strcat(USERSPATH, "/Users");
     int number_of_users = 0;
     user users[MAXUSERSIZE];
 
-    FILE *ptr;
 launch:
     printf("Welcome To DA_Forces\n\n"
 
@@ -64,31 +68,45 @@ launch:
             scanf("%s", us_id);
             printf("Password : ");
             scanf("%s", password);
-            ptr = fopen(strcat(ADMINPATH, "/users_data.txt"), "r");
+            char *path = (char *)malloc(sizeof(char) * 100);
+            strcpy(path, ADMINPATH);
+            strcat(path, "/users_data.txt");
+            printf("%s\n", ADMINPATH);
+            printf("%s\n", path);
+            FILE *ptr = fopen(path, "r");
             if (ptr == NULL)
             {
                 printf("Error in opening file\n");
                 exit(1);
             }
-            char *uname, *pass;
-            while (fscanf(ptr, "%s", uname) != EOF)
+            // char *uname, *pass;
+            // while (fscanf(ptr, "%s %s", uname, pass) != EOF)
+            // {
+            //     printf("%s\n", uname);
+            //     printf("%s\n", pass);
+            //     if (strcmp(uname, us_id) == 0)
+            //     {
+            //         if (strcmp(pass, password) == 0)
+            //         {
+            //             printf("\nSucessfully Login\n");
+            //             userLogin(us_id, password, ptr, 0);
+            //             break;
+            //         }
+            //         else
+            //         {
+            //             printf("\nWrong Password\n");
+            //         }
+            //     }
+            // }
+
+            // Working Fine. So Problem is in fscanf() or reading a string.
+            char buffer;
+            while ((buffer = fgetc(ptr)) != EOF)
             {
-                fscanf(ptr, "%s", pass);
-                printf("%s\n", uname);
-                printf("%s\n", pass);
-                if (strcmp(uname, us_id) == 0)
-                {
-                    if (strcmp(pass, password) == 0)
-                    {
-                        printf("\nSucessfully Login\n");
-                        break;
-                    }
-                    else
-                    {
-                        printf("\nWrong Password\n");
-                    }
-                }
+                printf("%c", buffer);
             }
+            printf("\n");
+            userLogin(us_id, "1", ptr, 1);
             fclose(ptr);
         }
         else
@@ -97,16 +115,21 @@ launch:
         username:
             printf("Username : ");
             scanf("%s", us_id);
-            ptr = fopen(strcat(ADMINPATH, "/users_data.txt"), "r");
+
+            char *path = (char *)malloc(sizeof(char) * 100);
+            strcpy(path, ADMINPATH);
+            strcat(path, "/users_data.txt");
+            printf("%s\n", ADMINPATH);
+            printf("%s\n", path);
+            FILE *ptr = fopen(path, "r");
             if (ptr == NULL)
             {
                 printf("Error in opening file\n");
                 exit(1);
             }
             char *uname, *pass;
-            while (fscanf(ptr, "%s", uname) != EOF)
+            while (fscanf(ptr, "%s %s", uname, pass) != EOF)
             {
-                fscanf(ptr, "%s", pass);
                 if (strcmp(uname, us_id) == 0)
                 {
                     printf("\nUsername already exists\n");
@@ -122,7 +145,7 @@ launch:
             scanf("%s", confmPass);
             if (strcmp(password, confmPass) == 0)
             {
-                ptr = fopen(strcat(ADMINPATH, "/users_data.txt"), "a");
+                FILE *ptr = fopen(path, "a");
                 fprintf(ptr, "%s %s\n", us_id, password);
                 fclose(ptr);
                 printf("\n\nSucessfully Signup\n");
@@ -166,4 +189,18 @@ launch:
         }
     }
     return 0;
+}
+
+void userLogin(char *username, char *password, FILE *fp, int flag)
+{
+    char *folderPath = (char *)malloc(sizeof(char) * 100);
+    strcpy(folderPath, USERSPATH);
+    strcat(folderPath, "/");
+    strcat(folderPath, username);
+    if (flag)
+    {
+        printf("%s\n", folderPath);
+        mode_t mode = 0777;
+        // mkdir(folderPath, mode);
+    }
 }
