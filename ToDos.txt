@@ -3,7 +3,6 @@ Abort call handling when go back functionality is called.
 add load function that will load the struct from the users_data whenever we rerun the code.
 Add a function to load admin home page or the page to be displayed after admin logins.
 In the add question section, work on how a new user should add file. Most Obvious way is to open a txt editor, ask him to do 3 things. Description, Input, Output. and Make a new folder of the question and move all the files there, inside the questions folder of admin.
-In the home page, add 2 choices add question and list the folder.
 On person work on allowing a way to come back a page, like coming back from question to home page of users and similars.
 Parent child process stuff
 Signal Handling

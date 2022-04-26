@@ -23,6 +23,7 @@ uint32_t hashFunc(char *key, size_t len);
 
 int main()
 {
+    system("clear");
     PROJECTPATH = (char *)malloc(sizeof(char) * 100);
     ADMINPATH = (char *)malloc(sizeof(char) * 100);
     USERSPATH = (char *)malloc(sizeof(char) * 100);
@@ -76,7 +77,8 @@ launch:
             char *uname;
             uname = (char *)malloc(sizeof(char) * 50);
             uint32_t pass;
-            // Working Fine. So Problem is in fscanf() or reading a string.
+
+            int flag = 1;
             while (fscanf(ptr, "%s", uname) != EOF)
             {
                 fscanf(ptr, "%u", &pass);
@@ -84,15 +86,26 @@ launch:
                 {
                     if (pass == hashFunc(password, strlen(password)))
                     {
-                        printf("\nSucessfully Login\n");
+                        printf("\nLogin Successfull\n");
                         fclose(ptr);
+                        sleep(1);
+                        system("clear");
                         userLogin(us_id, pass, ptr, 0);
                     }
                     else
                     {
+                        flag = 0;
                         printf("\nWrong Password\n");
+                        sleep(1);
+                        system("clear");
                     }
                 }
+            }
+            if (flag)
+            {
+                printf("\nUser not found\n");
+                sleep(1);
+                system("clear");
             }
             free(path);
             free(uname);
@@ -143,6 +156,7 @@ launch:
                 fprintf(ptr, "%s %u\n", us_id, hashFunc(password, strlen(password)));
                 fclose(ptr);
                 printf("\n\nSucessfully Signup\n");
+                sleep(1);
                 system("clear");
                 userLogin(us_id, hashFunc(password, strlen(password)), ptr, 1);
             }
@@ -191,7 +205,6 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
     strcat(folderPath, username);
     if (flag)
     {
-        printf("%s\n", folderPath);
         mode_t mode = 0777;
         mkdir(folderPath, mode);
     }
@@ -299,7 +312,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                 fclose(ptr);
                 free(questionsPath);
                 free(question);
-                
+
                 printf("Select the appropriate choice from following\n\n"
 
                        "1) Enter 0 to Code\n"
@@ -310,6 +323,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                 if (choice == 0)
                 {
                     system("touch Users/submission.c; chmod 755 Users/submission.c; gedit Users/submission.c");
+                    system("clear");
                     printf("Select the appropriate choice from following\n\n"
 
                            "1) Enter 0 for Submit Code\n"
@@ -330,13 +344,15 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                         free(cmd);
 
                         // System Testing.
+
+                        // Error
                         cmd = (char *)malloc(sizeof(char) * 100);
                         printf("%s\n", cmd);
-                        strcpy(cmd, "Admin/runQuestion.sh ");
-                        strcat(cmd, ques->d_name);
-                        strcat(cmd, " ");
-                        strcat(cmd, username);
-                        system(cmd);
+                        strcpy(cmd, "./Admin/runQuestion.sh 2_Add_Two_Numbers.c u2");
+                        // strcat(cmd, ques->d_name);
+                        // strcat(cmd, " ");
+                        // strcat(cmd, username);
+                        // system(cmd);
                         printf("%s\n", cmd);
                         free(cmd);
 
@@ -354,11 +370,13 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                         }
                         printf("\n");
                         fclose(ptr);
+                        sleep(1);
+                        system("clear");
                         system("rm verdict.txt");
                     }
                     else
                     {
-                        system("rm Users/submission.*");
+                        system("rm Users/submission*");
                     }
                 }
                 else
