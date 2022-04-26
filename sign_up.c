@@ -19,10 +19,12 @@ char *PROJECTPATH, *ADMINPATH, *USERSPATH;
 
 // void userLogin(char *username, char *password, FILE *fp, int flag);
 void userLogin(char *username, uint32_t password, FILE *fp, int flag);
+void adminLogin();
 uint32_t hashFunc(char *key, size_t len);
 
 int main()
 {
+    system("clear");
     PROJECTPATH = (char *)malloc(sizeof(char) * 100);
     ADMINPATH = (char *)malloc(sizeof(char) * 100);
     USERSPATH = (char *)malloc(sizeof(char) * 100);
@@ -33,6 +35,7 @@ int main()
     strcat(USERSPATH, "/Users");
 
 launch:
+    system("clear");
     printf("Welcome To DA_Forces\n\n"
 
            "Select the appropriate choice from following\n\n"
@@ -76,7 +79,8 @@ launch:
             char *uname;
             uname = (char *)malloc(sizeof(char) * 50);
             uint32_t pass;
-            // Working Fine. So Problem is in fscanf() or reading a string.
+
+            int flag = 1;
             while (fscanf(ptr, "%s", uname) != EOF)
             {
                 fscanf(ptr, "%u", &pass);
@@ -84,15 +88,27 @@ launch:
                 {
                     if (pass == hashFunc(password, strlen(password)))
                     {
-                        printf("\nSucessfully Login\n");
+                        printf("\nLogin Successfull\n");
+                        flag = 0;
                         fclose(ptr);
+                        sleep(1);
+                        system("clear");
                         userLogin(us_id, pass, ptr, 0);
                     }
                     else
                     {
+                        flag = 0;
                         printf("\nWrong Password\n");
+                        sleep(1);
+                        system("clear");
                     }
                 }
+            }
+            if (flag)
+            {
+                printf("\nUser not found\n");
+                sleep(1);
+                system("clear");
             }
             free(path);
             free(uname);
@@ -143,6 +159,7 @@ launch:
                 fprintf(ptr, "%s %u\n", us_id, hashFunc(password, strlen(password)));
                 fclose(ptr);
                 printf("\n\nSucessfully Signup\n");
+                sleep(1);
                 system("clear");
                 userLogin(us_id, hashFunc(password, strlen(password)), ptr, 1);
             }
@@ -158,28 +175,145 @@ launch:
     }
     else
     {
-        printf("Select the appropriate choice from following\n\n"
+        adminLogin();
+    }
+    return 0;
+}
 
-               "1) Enter 0 for Shut-Down System\n"
-               "2) Enter 1 for Adding Question\n\n");
+// Admin login page
+void adminLogin()
+{
+    printf("Select the appropriate choice from following\n\n"
 
-        int choice_3;
-        scanf("%d", &choice_3);
+           "1) Enter 0 to Shut-Down System\n"
+           "2) Enter 1 to Adding Question\n"
+           "3) Enter 2 to edit Question\n\n");
+
+    int choice_3;
+    scanf("%d", &choice_3);
+
+    system("clear");
+    char Que_id[100];
+    if (choice_3 == 1)
+    {
+        printf("Enter Question ID : ");
+
+        scanf("%s", Que_id);
+
+        char *cmd;
+        char *path;
+        path = (char *)malloc(100 * sizeof(char));
+        cmd = (char *)malloc(100 * sizeof(char));
+
+        // Making Que_id directory
+        strcpy(cmd, "mkdir Admin/Questions/");
+        strcat(cmd, Que_id);
+        system(cmd);
+
+        // Storing address in path variable
+        strcpy(path, "Admin/Questions/");
+        strcat(path, Que_id);
+        strcat(path, "/");
+
+        // Creating description.txt
+        strcpy(cmd, "gedit ");
+        strcat(cmd, path);
+        strcat(cmd, "description.txt");
+        system(cmd);
+
+        // Creating in.txt
+        strcpy(cmd, "gedit ");
+        strcat(cmd, path);
+        strcat(cmd, "in.txt");
+        system(cmd);
+
+        // Creating out.txt
+        strcpy(cmd, "gedit ");
+        strcat(cmd, path);
+        strcat(cmd, "out.txt");
+        system(cmd);
+
+        free(cmd);
+        free(path);
 
         system("clear");
-        if (choice_3)
+        printf("\n\nQuestion added successfully\n");
+        sleep(1);
+        system("clear");
+        adminLogin();
+    }
+    else if (choice_3 == 0)
+    {
+        // Shut-Down System
+        printf("\nShutting Down System...\n\n");
+        sleep(1);
+        exit(0);
+    }
+    else
+    {
+        char *questionsPath = (char *)malloc(sizeof(char) * 100);
+        strcpy(questionsPath, ADMINPATH);
+        strcat(questionsPath, "/Questions");
+        DIR *dir;
+        dir = opendir(questionsPath);
+        if (dir == NULL)
         {
-            // Add Question
+            printf("Error: Directory not found\n");
+            sleep(1);
+            free(questionsPath);
+            adminLogin();
         }
         else
         {
-            // Shut-Down System
-            printf("\nShutting Down System...\n\n");
+            struct dirent *entry;
+            int index = 1;
+            while ((entry = readdir(dir)) != NULL)
+            {
+                if (entry->d_name[0] != '.')
+                {
+                    printf("%d :- %s\n", index, entry->d_name);
+                    index++;
+                }
+            }
+            closedir(dir);
+
+            printf("\nEnter Question ID : ");
+            scanf("%s", Que_id);
+
+            system("clear");
+
+            printf("\nSelect the appropriate choice from following\n\n"
+
+                   "1) Enter 0 for description file\n"
+                   "2) Enter 1 for in file\n"
+                   "3) Enter 2 for out file\n\n");
+
+            int choice_5;
+            scanf("%d", &choice_5);
+
+            char *cmd;
+            cmd = (char *)malloc(100 * sizeof(100));
+
+            strcpy(cmd, "gedit Admin/Questions/");
+            strcat(cmd, Que_id);
+            if (choice_5 == 0)
+                strcat(cmd, "/description.txt");
+            else if (choice_5 == 1)
+                strcat(cmd, "/in.txt");
+            else
+                strcat(cmd, "/out.txt");
+
+            system(cmd);
+            system("clear");
+
+            printf("\n\nQuestion edited successfully\n");
             sleep(1);
-            exit(0);
+            system("clear");
+            free(cmd);
+            free(questionsPath);
+            adminLogin();
         }
     }
-    return 0;
 }
 
 // void userLogin(char *username, char *password, FILE *fp, int flag)
@@ -191,7 +325,6 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
     strcat(folderPath, username);
     if (flag)
     {
-        printf("%s\n", folderPath);
         mode_t mode = 0777;
         mkdir(folderPath, mode);
     }
@@ -206,6 +339,8 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
     system("clear");
     if (choice == 0)
     {
+    display:;
+        system("clear");
         char *questionsPath = (char *)malloc(sizeof(char) * 100);
         strcpy(questionsPath, ADMINPATH);
         strcat(questionsPath, "/Questions");
@@ -218,19 +353,46 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
         }
         else
         {
-        display:;
             struct dirent *entry;
-            int index = 1;
+            int index = 0;
             while ((entry = readdir(dir)) != NULL)
             {
                 if (entry->d_name[0] != '.')
                 {
-                    printf("%d :- %s\n", index, entry->d_name);
                     index++;
                 }
             }
+            index = 0;
+            char *saveQuestion[index];
             closedir(dir);
-            printf("Select the appropriate choice from following\n\n"
+            dir = opendir(questionsPath);
+            while ((entry = readdir(dir)) != NULL)
+            {
+                if (entry->d_name[0] != '.')
+                {
+                    saveQuestion[index] = (char *)malloc(sizeof(char) * 100);
+                    saveQuestion[index++] = entry->d_name;
+                }
+            }
+            closedir(dir);
+            for (int i = 0; i < index; i++)
+            {
+                for (int j = i + 1; j < index; j++)
+                {
+                    if (strcmp(saveQuestion[i], saveQuestion[j]) > 0)
+                    {
+                        char *temp;
+                        temp = saveQuestion[i];
+                        saveQuestion[i] = saveQuestion[j];
+                        saveQuestion[j] = temp;
+                    }
+                }
+            }
+            for (int i = 0; i < index; i++)
+            {
+                printf("%s\n", saveQuestion[i]);
+            }
+            printf("\nSelect the appropriate choice from following\n\n"
 
                    "1) Enter Question Number\n"
                    "2) Enter -1 for Exit\n\n");
@@ -240,12 +402,14 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
             {
                 printf("\n\nExiting...\n\n");
                 free(questionsPath);
-                sleep(1);
+                sleep(2);
+                system("clear");
                 exit(0);
             }
             else
             {
                 // Read Question.
+                system("clear");
                 char *question = (char *)malloc(sizeof(char) * 100);
                 strcpy(question, questionsPath);
 
@@ -266,13 +430,13 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                     }
                 }
                 closedir(dir);
-                char *cmd;
-                cmd = (char *)malloc(sizeof(char) * 100);
-                strcpy(cmd, "ls Admin/users/");
-                strcat(cmd, username);
-                strcat(cmd, "/");
-                strcat(cmd, ques->d_name);
-                if (system(cmd) != 0)
+                char *cmd_dir;
+                cmd_dir = (char *)malloc(sizeof(char) * 100);
+                strcpy(cmd_dir, "ls Admin/users/");
+                strcat(cmd_dir, username);
+                strcat(cmd_dir, "/");
+                strcat(cmd_dir, ques->d_name);
+                if (system(cmd_dir) != 0)
                 {
                     char *cmd2;
                     cmd2 = (char *)malloc(sizeof(char) * 100);
@@ -283,7 +447,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                     system(cmd2);
                     free(cmd2);
                 }
-                free(cmd);
+                free(cmd_dir);
                 FILE *ptr = fopen(question, "r");
                 if (ptr == NULL)
                 {
@@ -299,7 +463,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                 fclose(ptr);
                 free(questionsPath);
                 free(question);
-                
+
                 printf("Select the appropriate choice from following\n\n"
 
                        "1) Enter 0 to Code\n"
@@ -310,6 +474,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                 if (choice == 0)
                 {
                     system("touch Users/submission.c; chmod 755 Users/submission.c; gedit Users/submission.c");
+                    system("clear");
                     printf("Select the appropriate choice from following\n\n"
 
                            "1) Enter 0 for Submit Code\n"
@@ -318,27 +483,30 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                     scanf("%d", &choice);
                     if (choice == 0)
                     {
-                        char *cmd;
-                        cmd = (char *)malloc(sizeof(char) * 100);
-                        printf("%s\n", cmd);
-                        strcpy(cmd, "mv Users/submission.c Admin/users/");
-                        strcat(cmd, username);
-                        strcat(cmd, "/");
-                        strcat(cmd, ques->d_name);
-                        printf("%s\n", cmd);
-                        system(cmd);
-                        free(cmd);
+                        char *cmd_move;
+                        cmd_move = (char *)malloc(sizeof(char) * 100);
+                        printf("%s\n", cmd_move);
+                        strcpy(cmd_move, "mv Users/submission.c Admin/users/");
+                        strcat(cmd_move, username);
+                        strcat(cmd_move, "/");
+                        strcat(cmd_move, ques->d_name);
+                        printf("%s\n", cmd_move);
+                        system(cmd_move);
+                        free(cmd_move);
 
                         // System Testing.
-                        cmd = (char *)malloc(sizeof(char) * 100);
-                        printf("%s\n", cmd);
-                        strcpy(cmd, "Admin/runQuestion.sh ");
-                        strcat(cmd, ques->d_name);
-                        strcat(cmd, " ");
-                        strcat(cmd, username);
-                        system(cmd);
-                        printf("%s\n", cmd);
-                        free(cmd);
+
+                        // Error
+                        char *cmd_run;
+                        cmd_run = (char *)malloc(sizeof(char) * 100);
+                        printf("%s\n", cmd_run);
+                        strcpy(cmd_run, "./Admin/runQuestion.sh ");
+                        strcat(cmd_run, ques->d_name);
+                        strcat(cmd_run, " ");
+                        strcat(cmd_run, username);
+                        system(cmd_run);
+                        printf("%s\n", cmd_run);
+                        free(cmd_run);
 
                         // Display Verdict.txt
                         FILE *ptr = fopen("verdict.txt", "r");
@@ -354,11 +522,13 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                         }
                         printf("\n");
                         fclose(ptr);
+                        sleep(1);
+                        system("clear");
                         system("rm verdict.txt");
                     }
                     else
                     {
-                        system("rm Users/submission.*");
+                        system("rm Users/submission*");
                     }
                 }
                 else

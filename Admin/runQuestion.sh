@@ -16,6 +16,7 @@ then
 fi
 
 gcc $uPath/$qID/submission.c -o $uPath/$qID/submission.out
+chmod 777 $uPath/$qID/submission.out
 ./$uPath/$qID/submission.out < $iPath > $vPath
 rm $uPath/$qID/submission.out
 
