@@ -40,7 +40,8 @@ launch:
            "Select the appropriate choice from following\n\n"
 
            "1) Enter 0 for User\n"
-           "2) Enter 1 for Admin\n\n");
+           "2) Enter 1 for Admin\n"
+           "3) Enter -1 for Exit\n\n");
 
     int choice_1;
     scanf("%d", &choice_1);
@@ -93,6 +94,7 @@ launch:
                         sleep(1);
                         system("clear");
                         userLogin(us_id, pass, ptr, 0);
+                        break;
                     }
                     else
                     {
@@ -172,9 +174,25 @@ launch:
             goto launch;
         }
     }
-    else
+    else if (choice_1 == 1)
     {
         adminLogin();
+    }
+    else if (choice_1 == -1)
+    {
+        printf("\n\nExiting...\n\n");
+        // free(PROJECTPATH);
+        free(ADMINPATH);
+        free(USERSPATH);
+        sleep(1);
+        exit(0);
+    }
+    else
+    {
+        printf("\nWrong Choice\n");
+        sleep(1);
+        system("clear");
+        goto launch;
     }
     return 0;
 }
@@ -245,10 +263,8 @@ void adminLogin()
     {
         // Shut-Down System
         printf("\nShutting Down System...\n\n");
-        printf("%s\n", username);
-
-        sleep(20);
-        // exit(0);
+        sleep(1);
+        exit(0);
     }
     else
     {
@@ -354,16 +370,47 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
         else
         {
             struct dirent *entry;
-            int index = 1;
+            int index = 0;
             while ((entry = readdir(dir)) != NULL)
             {
                 if (entry->d_name[0] != '.')
                 {
-                    printf("%d :- %s\n", index, entry->d_name);
                     index++;
                 }
             }
             closedir(dir);
+
+            index = 0;
+            char *saveQuestion[index];
+            dir = opendir(questionsPath);
+            while ((entry = readdir(dir)) != NULL)
+            {
+                if (entry->d_name[0] != '.')
+                {
+                    saveQuestion[index] = (char *)malloc(sizeof(char) * 100);
+                    saveQuestion[index++] = entry->d_name;
+                }
+            }
+            closedir(dir);
+
+            for (int i = 0; i < index; i++)
+            {
+                for (int j = i + 1; j < index; j++)
+                {
+                    if (strcmp(saveQuestion[i], saveQuestion[j]) > 0)
+                    {
+                        char *temp;
+                        temp = saveQuestion[i];
+                        saveQuestion[i] = saveQuestion[j];
+                        saveQuestion[j] = temp;
+                    }
+                }
+            }
+            for (int i = 0; i < index; i++)
+            {
+                printf("%s\n", saveQuestion[i]);
+            }
+
             printf("\nSelect the appropriate choice from following\n\n"
 
                    "1) Enter Question Number\n"
@@ -408,6 +455,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                 strcat(cmd, ques->d_name);
                 if (system(cmd) != 0)
                 {
+                    system("clear");
                     char *cmd2;
                     cmd2 = (char *)malloc(sizeof(char) * 100);
                     strcpy(cmd2, "mkdir Admin/users/");
@@ -417,6 +465,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                     system(cmd2);
                     free(cmd2);
                 }
+                system("clear");
                 free(cmd);
                 FILE *ptr = fopen(question, "r");
                 if (ptr == NULL)
@@ -504,6 +553,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                 }
                 else
                 {
+                    system("clear");
                     goto display;
                 }
             }
@@ -511,13 +561,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
     }
     else
     {
-        printf("\n\nExiting...\n\n");
-        free(PROJECTPATH);
-        free(ADMINPATH);
-        free(USERSPATH);
         free(username);
-        sleep(1);
-        exit(0);
     }
 }
 
