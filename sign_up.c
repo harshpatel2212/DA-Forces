@@ -21,14 +21,6 @@ char *PROJECTPATH, *ADMINPATH, *USERSPATH;
 void userLogin(char *username, uint32_t password, FILE *fp, int flag);
 uint32_t hashFunc(char *key, size_t len);
 
-typedef struct usersDataBase
-{
-    int id;
-    char name[50];
-    uint32_t password;
-    DIR *dir_ptr;
-} user;
-
 int main()
 {
     PROJECTPATH = (char *)malloc(sizeof(char) * 100);
@@ -39,8 +31,6 @@ int main()
     strcat(ADMINPATH, "/Admin");
     strcpy(USERSPATH, PROJECTPATH);
     strcat(USERSPATH, "/Users");
-    int number_of_users = 0;
-    user users[MAXUSERSIZE];
 
 launch:
     printf("Welcome To DA_Forces\n\n"
@@ -65,6 +55,7 @@ launch:
 
         system("clear");
 
+        // Login
         if (choice_2 == 0)
         {
             char us_id[50], password[50];
@@ -79,6 +70,7 @@ launch:
             if (ptr == NULL)
             {
                 printf("Error in opening file\n");
+                free(path);
                 exit(1);
             }
             char *uname;
@@ -94,17 +86,17 @@ launch:
                     {
                         printf("\nSucessfully Login\n");
                         fclose(ptr);
-                        free(path);
                         userLogin(us_id, pass, ptr, 0);
-                        break;
                     }
                     else
                     {
                         printf("\nWrong Password\n");
-                        free(path);
                     }
                 }
             }
+            free(path);
+            free(uname);
+            goto launch;
         }
         else
         {
@@ -120,6 +112,7 @@ launch:
             if (ptr == NULL)
             {
                 printf("Error in opening file\n");
+                free(path);
                 exit(1);
             }
             char *uname;
@@ -150,20 +143,16 @@ launch:
                 fprintf(ptr, "%s %u\n", us_id, hashFunc(password, strlen(password)));
                 fclose(ptr);
                 printf("\n\nSucessfully Signup\n");
-                users[number_of_users].id = number_of_users;
-                strncpy(users[number_of_users].name, us_id, 50);
-                users[number_of_users].name[49] = '\0';
-                users[number_of_users].password = hashFunc(password, strlen(password));
-                // users[number_of_users].password[49] = '\0';
-                number_of_users++;
                 system("clear");
-                userLogin(us_id, pass, ptr, 1);
+                userLogin(us_id, hashFunc(password, strlen(password)), ptr, 1);
             }
             else
             {
                 printf("\n\nPassword and Confirm Password doesn't match\n\n");
                 goto confirmPassword;
             }
+            free(path);
+            free(uname);
             goto launch;
         }
     }
@@ -224,7 +213,6 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
         dir = opendir(questionsPath);
         if (dir == NULL)
         {
-            fprintf(fp, "Error: Directory not found\n");
             printf("Error: Directory not found\n");
             return;
         }
@@ -309,7 +297,9 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                 }
                 printf("\n");
                 fclose(ptr);
-
+                free(questionsPath);
+                free(question);
+                
                 printf("Select the appropriate choice from following\n\n"
 
                        "1) Enter 0 to Code\n"
@@ -373,7 +363,6 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                 }
                 else
                 {
-                    free(question);
                     goto display;
                 }
             }
@@ -382,6 +371,10 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
     else
     {
         printf("\n\nExiting...\n\n");
+        free(PROJECTPATH);
+        free(ADMINPATH);
+        free(USERSPATH);
+        free(username);
         sleep(1);
         exit(0);
     }
