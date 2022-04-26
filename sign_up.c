@@ -18,7 +18,7 @@
 char *PROJECTPATH, *ADMINPATH, *USERSPATH;
 
 // void userLogin(char *username, char *password, FILE *fp, int flag);
-void userLogin(char *username, uint32_t password, FILE *fp, int flag);
+void userLogin(char *usrName, uint32_t password, FILE *fp, int flag);
 void adminLogin();
 uint32_t hashFunc(char *key, size_t len);
 
@@ -283,16 +283,46 @@ void adminLogin()
         else
         {
             struct dirent *entry;
-            int index = 1;
+            int index = 0;
             while ((entry = readdir(dir)) != NULL)
             {
                 if (entry->d_name[0] != '.')
                 {
-                    printf("%d :- %s\n", index, entry->d_name);
                     index++;
                 }
             }
             closedir(dir);
+
+            char *saveQuestion[index];
+            index = 0;
+            dir = opendir(questionsPath);
+            while ((entry = readdir(dir)) != NULL)
+            {
+                if (entry->d_name[0] != '.')
+                {
+                    saveQuestion[index] = (char *)malloc(sizeof(char) * 100);
+                    saveQuestion[index++] = entry->d_name;
+                }
+            }
+            closedir(dir);
+
+            for (int i = 0; i < index; i++)
+            {
+                for (int j = i + 1; j < index; j++)
+                {
+                    if (strcmp(saveQuestion[i], saveQuestion[j]) > 0)
+                    {
+                        char *temp;
+                        temp = saveQuestion[i];
+                        saveQuestion[i] = saveQuestion[j];
+                        saveQuestion[j] = temp;
+                    }
+                }
+            }
+            for (int i = 0; i < index; i++)
+            {
+                printf("%s\n", saveQuestion[i]);
+            }
 
             printf("\nEnter Question ID : ");
             scanf("%s", Que_id);
@@ -334,12 +364,15 @@ void adminLogin()
 }
 
 // void userLogin(char *username, char *password, FILE *fp, int flag)
-void userLogin(char *username, uint32_t password, FILE *fp, int flag)
+void userLogin(char *usrName, uint32_t password, FILE *fp, int flag)
 {
+    char username[100];
+    strcpy(username, usrName);
     char *folderPath = (char *)malloc(sizeof(char) * 100);
     strcpy(folderPath, ADMINPATH);
     strcat(folderPath, "/users/");
     strcat(folderPath, username);
+
     if (flag)
     {
         mode_t mode = 0777;
@@ -505,12 +538,10 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                     {
                         char *cmd_move;
                         cmd_move = (char *)malloc(sizeof(char) * 100);
-                        printf("%s\n", cmd_move);
                         strcpy(cmd_move, "mv Users/submission.c Admin/users/");
                         strcat(cmd_move, username);
                         strcat(cmd_move, "/");
                         strcat(cmd_move, ques->d_name);
-                        printf("%s\n", cmd_move);
                         system(cmd_move);
                         free(cmd_move);
 
@@ -519,13 +550,11 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                         // Error
                         char *cmd_run;
                         cmd_run = (char *)malloc(sizeof(char) * 100);
-                        printf("%s\n", cmd_run);
                         strcpy(cmd_run, "./Admin/runQuestion.sh ");
                         strcat(cmd_run, ques->d_name);
                         strcat(cmd_run, " ");
                         strcat(cmd_run, username);
                         system(cmd_run);
-                        printf("%s\n", cmd_run);
                         free(cmd_run);
 
                         // Display Verdict.txt
@@ -542,14 +571,11 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                         }
                         printf("\n");
                         fclose(ptr);
-                        sleep(1);
+                        sleep(10);
                         system("clear");
                         system("rm verdict.txt");
                     }
-                    else
-                    {
-                        system("rm Users/submission*");
-                    }
+                    system("rm Users/submission*");
                 }
                 else
                 {
@@ -561,7 +587,8 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
     }
     else
     {
-        free(username);
+        printf("Logging Out...\n\n");
+        sleep(1);
     }
 }
 

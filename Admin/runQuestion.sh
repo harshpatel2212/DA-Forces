@@ -25,6 +25,5 @@ then
     cmp --silent $oPath $vPath && echo 'All Correct' > $vPath || echo 'Wrong Answer' > $vPath
     exit 0
 else
-    # cat $vPath
     exit 1
 fi
