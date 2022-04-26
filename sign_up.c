@@ -245,8 +245,10 @@ void adminLogin()
     {
         // Shut-Down System
         printf("\nShutting Down System...\n\n");
-        sleep(1);
-        exit(0);
+        printf("%s\n", username);
+
+        sleep(20);
+        // exit(0);
     }
     else
     {
@@ -394,6 +396,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                         strcat(question, "/");
                         strcat(question, ques->d_name);
                         strcat(question, "/description.txt");
+                        break;
                     }
                 }
                 closedir(dir);
@@ -446,6 +449,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
 
                            "1) Enter 0 for Submit Code\n"
                            "2) Enter 1 to Cancel\n\n");
+
                     int choice;
                     scanf("%d", &choice);
                     if (choice == 0)
