@@ -19,6 +19,7 @@ char *PROJECTPATH, *ADMINPATH, *USERSPATH;
 
 // void userLogin(char *username, char *password, FILE *fp, int flag);
 void userLogin(char *username, uint32_t password, FILE *fp, int flag);
+void adminlogin();
 uint32_t hashFunc(char *key, size_t len);
 
 int main()
@@ -158,7 +159,15 @@ launch:
     }
     else
     {
-        printf("Select the appropriate choice from following\n\n"
+        adminlogin();
+    }
+    return 0;
+}
+
+//Admin login page
+void adminlogin()
+{
+    printf("Select the appropriate choice from following\n\n"
 
                "1) Enter 0 for Shut-Down System\n"
                "2) Enter 1 for Adding Question\n\n");
@@ -169,7 +178,47 @@ launch:
         system("clear");
         if (choice_3)
         {
-            // Add Question
+            system("clear");
+            printf("Enter Question ID : ");
+
+            char Que_id[100];
+            scanf("%s", Que_id);
+
+            char* cmd;
+            char* path;
+            path = (char*)malloc(100*sizeof(char));
+            cmd = (char*)malloc(100*sizeof(char));
+
+            //Making Que_id directory
+            strcpy(cmd, "mkdir Admin/Questions/");
+            strcat(cmd, Que_id);
+            system(cmd);
+
+            //Storing address in path variable
+            strcpy(path, "Admin/Questions/");
+            strcat(path, Que_id);
+            strcat(path, "/");
+
+            //Creating description.txt
+            strcpy(cmd, "gedit ");
+            strcat(cmd, path);
+            strcat(cmd, "description.txt");
+            system(cmd);
+
+            //Creating in.txt
+            strcpy(cmd, "gedit ");
+            strcat(cmd, path);
+            strcat(cmd, "in.txt");
+            system(cmd);
+
+            //Creating out.txt
+            strcpy(cmd, "gedit ");
+            strcat(cmd, path);
+            strcat(cmd, "out.txt");
+            system(cmd);
+
+            free(cmd);
+            free(path);
         }
         else
         {
@@ -178,8 +227,6 @@ launch:
             sleep(1);
             exit(0);
         }
-    }
-    return 0;
 }
 
 // void userLogin(char *username, char *password, FILE *fp, int flag)
