@@ -19,7 +19,7 @@ char *PROJECTPATH, *ADMINPATH, *USERSPATH;
 
 // void userLogin(char *username, char *password, FILE *fp, int flag);
 void userLogin(char *username, uint32_t password, FILE *fp, int flag);
-void adminlogin();
+void adminLogin();
 uint32_t hashFunc(char *key, size_t len);
 
 int main()
@@ -88,6 +88,7 @@ launch:
                     if (pass == hashFunc(password, strlen(password)))
                     {
                         printf("\nLogin Successfull\n");
+                        flag = 0;
                         fclose(ptr);
                         sleep(1);
                         system("clear");
@@ -173,13 +174,13 @@ launch:
     }
     else
     {
-        adminlogin();
+        adminLogin();
     }
     return 0;
 }
 
 // Admin login page
-void adminlogin()
+void adminLogin()
 {
     printf("Select the appropriate choice from following\n\n"
 
@@ -233,6 +234,12 @@ void adminlogin()
 
         free(cmd);
         free(path);
+
+        system("clear");
+        printf("\n\nQuestion added successfully\n");
+        sleep(1);
+        system("clear");
+        adminLogin();
     }
     else if (choice_3 == 0)
     {
@@ -251,11 +258,12 @@ void adminlogin()
         if (dir == NULL)
         {
             printf("Error: Directory not found\n");
-            return;
+            sleep(1);
+            free(questionsPath);
+            adminLogin();
         }
         else
         {
-        display:;
             struct dirent *entry;
             int index = 1;
             while ((entry = readdir(dir)) != NULL)
@@ -273,7 +281,7 @@ void adminlogin()
 
             system("clear");
 
-            printf("Select the appropriate choice from following\n\n"
+            printf("\nSelect the appropriate choice from following\n\n"
 
                    "1) Enter 0 for description file\n"
                    "2) Enter 1 for in file\n"
@@ -289,13 +297,20 @@ void adminlogin()
             strcat(cmd, Que_id);
             if (choice_5 == 0)
                 strcat(cmd, "/description.txt");
-            else if(choice_5 == 1)
+            else if (choice_5 == 1)
                 strcat(cmd, "/in.txt");
             else
                 strcat(cmd, "/out.txt");
-            
+
             system(cmd);
+            system("clear");
+
+            printf("\n\nQuestion edited successfully\n");
+            sleep(1);
+            system("clear");
             free(cmd);
+            free(questionsPath);
+            adminLogin();
         }
     }
 }
@@ -323,6 +338,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
     system("clear");
     if (choice == 0)
     {
+    display:;
         char *questionsPath = (char *)malloc(sizeof(char) * 100);
         strcpy(questionsPath, ADMINPATH);
         strcat(questionsPath, "/Questions");
@@ -335,7 +351,6 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
         }
         else
         {
-        display:;
             struct dirent *entry;
             int index = 1;
             while ((entry = readdir(dir)) != NULL)
@@ -347,7 +362,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                 }
             }
             closedir(dir);
-            printf("Select the appropriate choice from following\n\n"
+            printf("\nSelect the appropriate choice from following\n\n"
 
                    "1) Enter Question Number\n"
                    "2) Enter -1 for Exit\n\n");
@@ -379,7 +394,6 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                         strcat(question, "/");
                         strcat(question, ques->d_name);
                         strcat(question, "/description.txt");
-                        break;
                     }
                 }
                 closedir(dir);
@@ -436,29 +450,30 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                     scanf("%d", &choice);
                     if (choice == 0)
                     {
-                        char *cmd;
-                        cmd = (char *)malloc(sizeof(char) * 100);
-                        printf("%s\n", cmd);
-                        strcpy(cmd, "mv Users/submission.c Admin/users/");
-                        strcat(cmd, username);
-                        strcat(cmd, "/");
-                        strcat(cmd, ques->d_name);
-                        printf("%s\n", cmd);
-                        system(cmd);
-                        free(cmd);
+                        char *cmd_move;
+                        cmd_move = (char *)malloc(sizeof(char) * 100);
+                        printf("%s\n", cmd_move);
+                        strcpy(cmd_move, "mv Users/submission.c Admin/users/");
+                        strcat(cmd_move, username);
+                        strcat(cmd_move, "/");
+                        strcat(cmd_move, ques->d_name);
+                        printf("%s\n", cmd_move);
+                        system(cmd_move);
+                        free(cmd_move);
 
                         // System Testing.
 
                         // Error
-                        cmd = (char *)malloc(sizeof(char) * 100);
-                        printf("%s\n", cmd);
-                        strcpy(cmd, "./Admin/runQuestion.sh 2_Add_Two_Numbers.c u2");
-                        // strcat(cmd, ques->d_name);
-                        // strcat(cmd, " ");
-                        // strcat(cmd, username);
-                        // system(cmd);
-                        printf("%s\n", cmd);
-                        free(cmd);
+                        char *cmd_run;
+                        cmd_run = (char *)malloc(sizeof(char) * 100);
+                        printf("%s\n", cmd_run);
+                        strcpy(cmd_run, "./Admin/runQuestion.sh ");
+                        strcat(cmd_run, ques->d_name);
+                        strcat(cmd_run, " ");
+                        strcat(cmd_run, username);
+                        system(cmd_run);
+                        printf("%s\n", cmd_run);
+                        free(cmd_run);
 
                         // Display Verdict.txt
                         FILE *ptr = fopen("verdict.txt", "r");
