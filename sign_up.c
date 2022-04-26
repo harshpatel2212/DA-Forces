@@ -164,69 +164,126 @@ launch:
     return 0;
 }
 
-//Admin login page
+// Admin login page
 void adminlogin()
 {
     printf("Select the appropriate choice from following\n\n"
 
-               "1) Enter 0 for Shut-Down System\n"
-               "2) Enter 1 for Adding Question\n\n");
+           "1) Enter 0 to Shut-Down System\n"
+           "2) Enter 1 to Adding Question\n"
+           "3) Enter 2 to edit Question\n\n");
 
-        int choice_3;
-        scanf("%d", &choice_3);
+    int choice_3;
+    scanf("%d", &choice_3);
 
-        system("clear");
-        if (choice_3)
+    system("clear");
+    char Que_id[100];
+    if (choice_3 == 1)
+    {
+        printf("Enter Question ID : ");
+
+        scanf("%s", Que_id);
+
+        char *cmd;
+        char *path;
+        path = (char *)malloc(100 * sizeof(char));
+        cmd = (char *)malloc(100 * sizeof(char));
+
+        // Making Que_id directory
+        strcpy(cmd, "mkdir Admin/Questions/");
+        strcat(cmd, Que_id);
+        system(cmd);
+
+        // Storing address in path variable
+        strcpy(path, "Admin/Questions/");
+        strcat(path, Que_id);
+        strcat(path, "/");
+
+        // Creating description.txt
+        strcpy(cmd, "gedit ");
+        strcat(cmd, path);
+        strcat(cmd, "description.txt");
+        system(cmd);
+
+        // Creating in.txt
+        strcpy(cmd, "gedit ");
+        strcat(cmd, path);
+        strcat(cmd, "in.txt");
+        system(cmd);
+
+        // Creating out.txt
+        strcpy(cmd, "gedit ");
+        strcat(cmd, path);
+        strcat(cmd, "out.txt");
+        system(cmd);
+
+        free(cmd);
+        free(path);
+    }
+    else if (choice_3 == 0)
+    {
+        // Shut-Down System
+        printf("\nShutting Down System...\n\n");
+        sleep(1);
+        exit(0);
+    }
+    else
+    {
+        char *questionsPath = (char *)malloc(sizeof(char) * 100);
+        strcpy(questionsPath, ADMINPATH);
+        strcat(questionsPath, "/Questions");
+        DIR *dir;
+        dir = opendir(questionsPath);
+        if (dir == NULL)
         {
-            system("clear");
-            printf("Enter Question ID : ");
-
-            char Que_id[100];
-            scanf("%s", Que_id);
-
-            char* cmd;
-            char* path;
-            path = (char*)malloc(100*sizeof(char));
-            cmd = (char*)malloc(100*sizeof(char));
-
-            //Making Que_id directory
-            strcpy(cmd, "mkdir Admin/Questions/");
-            strcat(cmd, Que_id);
-            system(cmd);
-
-            //Storing address in path variable
-            strcpy(path, "Admin/Questions/");
-            strcat(path, Que_id);
-            strcat(path, "/");
-
-            //Creating description.txt
-            strcpy(cmd, "gedit ");
-            strcat(cmd, path);
-            strcat(cmd, "description.txt");
-            system(cmd);
-
-            //Creating in.txt
-            strcpy(cmd, "gedit ");
-            strcat(cmd, path);
-            strcat(cmd, "in.txt");
-            system(cmd);
-
-            //Creating out.txt
-            strcpy(cmd, "gedit ");
-            strcat(cmd, path);
-            strcat(cmd, "out.txt");
-            system(cmd);
-
-            free(cmd);
-            free(path);
+            printf("Error: Directory not found\n");
+            return;
         }
         else
         {
-            // Shut-Down System
-            printf("\nShutting Down System...\n\n");
-            sleep(1);
-            exit(0);
+        display:;
+            struct dirent *entry;
+            int index = 1;
+            while ((entry = readdir(dir)) != NULL)
+            {
+                if (entry->d_name[0] != '.')
+                {
+                    printf("%d :- %s\n", index, entry->d_name);
+                    index++;
+                }
+            }
+            closedir(dir);
+
+            printf("\nEnter Question ID : ");
+            scanf("%s", Que_id);
+
+            system("clear");
+
+            printf("Select the appropriate choice from following\n\n"
+
+                   "1) Enter 0 for description file\n"
+                   "2) Enter 1 for in file\n"
+                   "3) Enter 2 for out file\n\n");
+
+            int choice_5;
+            scanf("%d", &choice_5);
+
+            char *cmd;
+            cmd = (char *)malloc(100 * sizeof(100));
+
+            strcpy(cmd, "gedit Admin/Questions/");
+            strcat(cmd, Que_id);
+            if (choice_5 == 0)
+                strcat(cmd, "/description.txt");
+            else if(choice_5 == 1)
+                strcat(cmd, "/in.txt");
+            else
+                strcat(cmd, "/out.txt");
+            
+            system(cmd);
+            free(cmd);
         }
+    }
 }
 
 // void userLogin(char *username, char *password, FILE *fp, int flag)
@@ -346,7 +403,7 @@ void userLogin(char *username, uint32_t password, FILE *fp, int flag)
                 fclose(ptr);
                 free(questionsPath);
                 free(question);
-                
+
                 printf("Select the appropriate choice from following\n\n"
 
                        "1) Enter 0 to Code\n"
