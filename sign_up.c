@@ -525,7 +525,30 @@ void userLogin(char *usrName, uint32_t password, FILE *fp, int flag)
                 scanf("%d", &choice);
                 if (choice == 0)
                 {
-                    system("touch Users/submission.c; chmod 755 Users/submission.c; gedit Users/submission.c");
+                    char *usr_filePath = (char *)malloc(sizeof(char) * 100);
+                    strcpy(usr_filePath, "Users/");
+                    strcat(usr_filePath, username);
+                    strcat(usr_filePath, "/");
+                    strcat(usr_filePath, "submission.c");
+
+                    char *create_file = (char *)malloc(sizeof(char) * 100);
+                    strcpy(create_file, "touch ");
+                    strcpy(create_file, usr_filePath);
+                    system(create_file);
+                    free(create_file);
+
+                    char *file_permission = (char *)malloc(sizeof(char) * 100);
+                    strcpy(file_permission, "chmod 755 ");
+                    strcpy(file_permission, usr_filePath);
+                    system(file_permission);
+                    free(file_permission);
+
+                    char *open_file = (char *)malloc(sizeof(char) * 100);
+                    strcpy(open_file, "gedit ");
+                    strcpy(open_file, usr_filePath);
+                    system(open_file);
+                    free(open_file);
+
                     system("clear");
                     printf("Select the appropriate choice from following\n\n"
 
@@ -536,18 +559,21 @@ void userLogin(char *usrName, uint32_t password, FILE *fp, int flag)
                     scanf("%d", &choice);
                     if (choice == 0)
                     {
-                        char *cmd_move;
-                        cmd_move = (char *)malloc(sizeof(char) * 100);
-                        strcpy(cmd_move, "mv Users/submission.c Admin/users/");
-                        strcat(cmd_move, username);
-                        strcat(cmd_move, "/");
-                        strcat(cmd_move, ques->d_name);
-                        system(cmd_move);
-                        free(cmd_move);
+                        char *admin_path;
+                        admin_path = (char *)malloc(sizeof(char) * 100);
+                        strcpy(admin_path, "./client.out 0 Admin/users/");
+                        strcat(admin_path, username);
+                        strcat(admin_path, "/");
+                        strcat(admin_path, ques->d_name);
+                        system(admin_path);
+                        free(admin_path);
 
-                        // System Testing.
+                        char *cmd_file;
+                        cmd_file = (char *)malloc(sizeof(char) * 100);
+                        strcpy(cmd_file, "./client.out 1 ");
+                        strcpy(cmd_file, usr_filePath);
+                        free(cmd_file);
 
-                        // Error
                         char *cmd_run;
                         cmd_run = (char *)malloc(sizeof(char) * 100);
                         strcpy(cmd_run, "./Admin/runQuestion.sh ");
@@ -571,10 +597,11 @@ void userLogin(char *usrName, uint32_t password, FILE *fp, int flag)
                         }
                         printf("\n");
                         fclose(ptr);
-                        sleep(10);
+                        sleep(5);
                         system("clear");
                         system("rm verdict.txt");
                     }
+                    free(usr_filePath);
                     system("rm Users/submission*");
                 }
                 else
@@ -588,6 +615,7 @@ void userLogin(char *usrName, uint32_t password, FILE *fp, int flag)
     else
     {
         printf("Logging Out...\n\n");
+        system("./client.out 2");
         sleep(1);
     }
 }
