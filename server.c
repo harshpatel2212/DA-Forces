@@ -77,6 +77,8 @@ int main(int argc, char *argv[])
     }
     while (1)
     {
+
+        // Differentiater Required to be added.
         addr_size = sizeof(new_addr);
         new_sock = accept(sockfd, (struct sockaddr *)&new_addr, &addr_size);
         if (new_sock < 0)

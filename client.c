@@ -40,12 +40,13 @@ int main(int argc, char *argv[])
     {
         filename = "dummy.txt";
         fp = fopen(filename, "w");
-        int success = fputs(fp, "EXIT");
+        int success = fputs(fp, argv[2]);
         if (success == EOF)
         {
             printf("[-]Error in writing to file.");
             exit(1);
         }
+        fclose(fp);
     }
     else if (atoi(argv[1]) == 1)
     {
@@ -55,12 +56,13 @@ int main(int argc, char *argv[])
     {
         filename = "dummy.txt";
         fp = fopen(filename, "w");
-        int success = fputs(fp, argv[2]);
+        int success = fputs(fp, "EXIT");
         if (success == EOF)
         {
             printf("[-]Error in writing to file.");
             exit(1);
         }
+        fclose(fp);
     }
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -84,6 +86,7 @@ int main(int argc, char *argv[])
     }
     printf("[+]Connected to Server.\n");
 
+    // Opening file to send
     fp = fopen(filename, "r");
     if (fp == NULL)
     {
