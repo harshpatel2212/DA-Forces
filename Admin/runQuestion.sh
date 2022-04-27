@@ -22,8 +22,14 @@ rm $uPath/$qID/submission.out
 
 if [ $? == 0 ]
 then
-    cmp --silent $oPath $vPath && echo 'All Correct' > $vPath || echo 'Wrong Answer' > $vPath
+    if  cmp --silent $oPath $vPath;
+    then
+        echo 'All Correct' > $vPath
+    else
+        echo 'Wrong Answer' > $vPath
+    fi
     exit 0
 else
+    # cat $vPath
     exit 1
 fi

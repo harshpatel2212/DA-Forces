@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 
 #define SIZE 1024
+#define PORT 4444
 
 void write_file(int sockfd, char *fname)
 {
@@ -36,15 +37,14 @@ void write_file(int sockfd, char *fname)
 
 int main(int argc, char *argv[])
 {
-    char *ip = "127.0.0.1";
-    int port = 8080;
-    int e;
-
+    int ret;
     int sockfd, new_sock;
     struct sockaddr_in server_addr, new_addr;
     socklen_t addr_size;
     char buffer[SIZE];
+    char *filename = (char *)malloc(sizeof(char) * (100));
 
+    pid_t childPid;
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
     {
@@ -55,11 +55,11 @@ int main(int argc, char *argv[])
 
     memset(&server_addr, '\0', sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = port;
-    server_addr.sin_addr.s_addr = inet_addr(ip);
+    server_addr.sin_port = htons(PORT);
+    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-    e = bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr));
-    if (e < 0)
+    ret = bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    if (ret < 0)
     {
         printf("[-]Error in bind");
         exit(1);
@@ -77,8 +77,6 @@ int main(int argc, char *argv[])
     }
     while (1)
     {
-
-        // Differentiater Required to be added.
         addr_size = sizeof(new_addr);
         new_sock = accept(sockfd, (struct sockaddr *)&new_addr, &addr_size);
         if (new_sock < 0)
@@ -86,9 +84,39 @@ int main(int argc, char *argv[])
             printf("[-]Error in accept");
             exit(1);
         }
+        printf("Connection accepted from %s : %d\n", inet_ntoa(new_addr.sin_addr), ntohs(new_addr.sin_port));
+        childPid = fork();
+        if (childPid == 0)
+        {
+            close(sockfd);
+            while (1)
+            {
+                int n;
+                n = recv(new_sock, buffer, SIZE, 0);
+                if (n <= 0)
+                {
+                    printf("[-]Error in Reading file.\n");
+                }
+                if (strcmp(buffer, "EXIT") == 0)
+                {
+                    printf("Disconnected accepted from %s : %d\n", inet_ntoa(new_addr.sin_addr), ntohs(new_addr.sin_port));
+                    close(new_sock);
 
-        write_file(new_sock, argv[1]);
-        printf("[+]Data written in the file successfully.\n");
+                    // Exit needs to send data where it needs to rm all files and display the verdict. returning pid and ppid
+                    break;
+                }
+                else if (strcmp(buffer, "PATH") == 0)
+                {
+                    strcpy(filename, buffer);
+                }
+                else
+                {
+                    write_file(new_sock, filename);
+					printf("[+]Data written in the file successfully.\n");
+                }
+                bzero(buffer, sizeof(buffer));
+            }
+        }
     }
     return 0;
 }

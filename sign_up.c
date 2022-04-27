@@ -527,25 +527,26 @@ void userLogin(char *usrName, uint32_t password, FILE *fp, int flag)
                 {
                     char *usr_filePath = (char *)malloc(sizeof(char) * 100);
                     strcpy(usr_filePath, "Users/");
-                    strcat(usr_filePath, username);
-                    strcat(usr_filePath, "/");
+                    // strcat(usr_filePath, username);
+                    // strcat(usr_filePath, "/");
                     strcat(usr_filePath, "submission.c");
+                    printf("%s\n", usr_filePath);
 
                     char *create_file = (char *)malloc(sizeof(char) * 100);
                     strcpy(create_file, "touch ");
-                    strcpy(create_file, usr_filePath);
+                    strcat(create_file, usr_filePath);
                     system(create_file);
                     free(create_file);
 
                     char *file_permission = (char *)malloc(sizeof(char) * 100);
                     strcpy(file_permission, "chmod 755 ");
-                    strcpy(file_permission, usr_filePath);
+                    strcat(file_permission, usr_filePath);
                     system(file_permission);
                     free(file_permission);
 
                     char *open_file = (char *)malloc(sizeof(char) * 100);
                     strcpy(open_file, "gedit ");
-                    strcpy(open_file, usr_filePath);
+                    strcat(open_file, usr_filePath);
                     system(open_file);
                     free(open_file);
 
@@ -597,12 +598,16 @@ void userLogin(char *usrName, uint32_t password, FILE *fp, int flag)
                         }
                         printf("\n");
                         fclose(ptr);
-                        sleep(5);
+                        sleep(50);
                         system("clear");
                         system("rm verdict.txt");
                     }
+                    char *rem_file = (char *)malloc(sizeof(char) * 100);
+                    strcpy(rem_file, "rm ");
+                    strcat(rem_file, usr_filePath);
+                    system(rem_file);
                     free(usr_filePath);
-                    system("rm Users/submission*");
+                    free(rem_file);
                 }
                 else
                 {
