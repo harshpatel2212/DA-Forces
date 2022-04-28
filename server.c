@@ -16,7 +16,7 @@ void write_file(int sockfd, char *fname)
     FILE *fp;
     printf("%s\n", fname);
     char *filename = (char *)malloc(sizeof(char) * (strlen(fname) + 1));
-    filename = fname;
+    strcpy(filename, fname);
     char buffer[SIZE];
 
     fp = fopen(filename, "w");
@@ -27,7 +27,9 @@ void write_file(int sockfd, char *fname)
         {
             printf("[-]Error in Writing file.\n");
         }
+        printf("%s", buffer);
         fprintf(fp, "%s", buffer);
+     	while (fscanf(fp, "%s ", buffer) == 1);
         bzero(buffer, SIZE);
     }
     fclose(fp);
@@ -86,37 +88,59 @@ int main(int argc, char *argv[])
         }
         printf("Connection accepted from %s : %d\n", inet_ntoa(new_addr.sin_addr), ntohs(new_addr.sin_port));
         childPid = fork();
+        int flag = 0;
         if (childPid == 0)
         {
-            close(sockfd);
             while (1)
             {
                 int n;
                 n = recv(new_sock, buffer, SIZE, 0);
+                if(strcmp(buffer, "PATH\n") == 0 && flag == 0)
+                {
+                	flag = 1;
+                    bzero(buffer, SIZE);
+                    continue;
+                }
                 if (n <= 0)
                 {
                     printf("[-]Error in Reading file.\n");
+                    break;
                 }
-                if (strcmp(buffer, "EXIT") == 0)
+                if (strcmp(buffer, "EXIT\n") == 0)
                 {
                     printf("Disconnected accepted from %s : %d\n", inet_ntoa(new_addr.sin_addr), ntohs(new_addr.sin_port));
-                    close(new_sock);
-
                     // Exit needs to send data where it needs to rm all files and display the verdict. returning pid and ppid
                     break;
                 }
-                else if (strcmp(buffer, "PATH") == 0)
+                else if (flag)
                 {
                     strcpy(filename, buffer);
+                    char* cmd_makeFile = (char *)malloc(sizeof(char) * 100);
+                    strcpy(cmd_makeFile, "touch ");
+                    strcat(cmd_makeFile, filename);
+                    system(cmd_makeFile);
+                    free(cmd_makeFile);
+                    flag = 0;
+                    bzero(buffer, SIZE);
+                    break;
                 }
                 else
                 {
+                    printf("%s", buffer);
+                    //FILE *fp;
+                    //fp = fopen(filename, "w");
+        	        //fprintf(fp, "%s", buffer);
+        	        //bzero(buffer, SIZE);
+                    //write_file(new_sock, fp);
                     write_file(new_sock, filename);
 					printf("[+]Data written in the file successfully.\n");
+					bzero(buffer, SIZE);
+					break;	
                 }
-                bzero(buffer, sizeof(buffer));
             }
         }
+        close(new_sock);
     }
+    close(sockfd);
     return 0;
 }

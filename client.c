@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
     else if (atoi(argv[1]) == 1)
     {
         strcpy(filename, argv[2]);
+        puts(filename);
     }
     else
     {
@@ -96,10 +97,10 @@ int main(int argc, char *argv[])
     }
 
     send_file(fp, sockfd);
+    fclose(fp);
     printf("[+]File data sent successfully.\n");
     printf("[+]Closing the connection.\n");
     close(sockfd);
-    fclose(fp);
     free(filename);
     return 0;
 }

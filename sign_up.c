@@ -530,7 +530,6 @@ void userLogin(char *usrName, uint32_t password, FILE *fp, int flag)
                     // strcat(usr_filePath, username);
                     // strcat(usr_filePath, "/");
                     strcat(usr_filePath, "submission.c");
-                    printf("%s\n", usr_filePath);
 
                     char *create_file = (char *)malloc(sizeof(char) * 100);
                     strcpy(create_file, "touch ");
@@ -560,29 +559,31 @@ void userLogin(char *usrName, uint32_t password, FILE *fp, int flag)
                     scanf("%d", &choice);
                     if (choice == 0)
                     {
-                        char *admin_path;
-                        admin_path = (char *)malloc(sizeof(char) * 100);
+                        char *admin_path = (char *)malloc(sizeof(char) * 100);
                         strcpy(admin_path, "./client.out 0 Admin/users/");
                         strcat(admin_path, username);
                         strcat(admin_path, "/");
                         strcat(admin_path, ques->d_name);
-                        system(admin_path);
-                        free(admin_path);
-
-                        char *cmd_file;
-                        cmd_file = (char *)malloc(sizeof(char) * 100);
+                        strcat(admin_path, "/");
+                        strcat(admin_path, "submission.c"); 
+                    	system(admin_path);
+                    	free(admin_path);	
+                        
+                        char *cmd_file = (char *)malloc(sizeof(char) * 100);
                         strcpy(cmd_file, "./client.out 1 ");
-                        strcpy(cmd_file, usr_filePath);
-                        free(cmd_file);
+                        strcat(cmd_file, usr_filePath);
+                        printf("%s", cmd_file);
+                        system(cmd_file);
+                        free(cmd_file);	
+                           
 
-                        char *cmd_run;
-                        cmd_run = (char *)malloc(sizeof(char) * 100);
+                        char *cmd_run = (char *)malloc(sizeof(char) * 100);
                         strcpy(cmd_run, "./Admin/runQuestion.sh ");
                         strcat(cmd_run, ques->d_name);
                         strcat(cmd_run, " ");
-                        strcat(cmd_run, username);
+                        strcat(cmd_run, username);      
                         system(cmd_run);
-                        free(cmd_run);
+                        free(cmd_run);   
 
                         // Display Verdict.txt
                         FILE *ptr = fopen("verdict.txt", "r");
@@ -598,7 +599,7 @@ void userLogin(char *usrName, uint32_t password, FILE *fp, int flag)
                         }
                         printf("\n");
                         fclose(ptr);
-                        sleep(50);
+                        sleep(10);
                         system("clear");
                         system("rm verdict.txt");
                     }
@@ -606,8 +607,8 @@ void userLogin(char *usrName, uint32_t password, FILE *fp, int flag)
                     strcpy(rem_file, "rm ");
                     strcat(rem_file, usr_filePath);
                     system(rem_file);
-                    free(usr_filePath);
                     free(rem_file);
+                    // free(usr_filePath);
                 }
                 else
                 {
