@@ -572,7 +572,7 @@ void userLogin(char *usrName, uint32_t password, FILE *fp, int flag)
                         char *cmd_file = (char *)malloc(sizeof(char) * 100);
                         strcpy(cmd_file, "./client.out 1 ");
                         strcat(cmd_file, usr_filePath);
-                        printf("%s", cmd_file);
+                        // printf("%s", cmd_file);
                         system(cmd_file);
                         free(cmd_file);	
                            
